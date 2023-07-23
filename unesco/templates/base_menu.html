@@ -1,0 +1,42 @@
+{% extends "base_bootstrap.html" %}
+
+{% block navbar %}
+  {% load app_tags %}
+  <nav class="navbar navbar-default navbar-inverse">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="/">UNESCO Sites List</a>
+      </div>
+
+      <!-- Main Navigation Links -->
+      <ul class="nav navbar-nav">
+        {% url 'my_favorites' as unesco_home %}
+        <li {% if request.get_full_path == unesco_home %}class="active"{% endif %}>
+          <a href="{% url 'unesco:my_favorites' %}">My Favorites</a>
+        </li>
+        <!-- Add more navigation links for the unesco app views as needed -->
+      </ul>
+
+      <!-- User Authentication and Actions -->
+      <ul class="nav navbar-nav navbar-right">
+        {% if user.is_authenticated %}
+          <!-- Add navigation links for authenticated users -->
+
+          <li class="dropdown">
+            <a href="#" data-toggle="dropdown" class="dropdown-toggle">
+              <img style="width: 25px;" src="{{ user|gravatar:60 }}"/><b class="caret"></b>
+            </a>
+            <ul class="dropdown-menu">
+              <li><a href="{% url 'logout' %}?next={% url 'unesco:sites_list' %}">Logout</a></li>
+            </ul>
+          </li>
+        {% else %}
+          <!-- Add navigation links for non-authenticated users -->
+          <li>
+            <a href="{% url 'login' %}?next={% url 'unesco:sites_list' %}">Login</a>
+          </li>
+        {% endif %}
+      </ul>
+    </div>
+  </nav>
+{% endblock %}

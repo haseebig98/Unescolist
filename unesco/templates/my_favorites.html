@@ -1,0 +1,88 @@
+{% extends "base_menu.html" %}
+{% block content %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Favorites</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+
+        h1 {
+            margin-top: 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ccc;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        h1 {
+            display: inline;
+            margin-right: 20px; /* Add some spacing between the h1 and the form */
+        }
+
+        /* Styles for the form element */
+        form {
+            display: inline;
+        }
+
+        /* Styles for the search input */
+        input[type="text"] {
+            /* Add any desired styles for the search input */
+            /* For example, you can set the width to control its size */
+            width: 200px;
+            /* Add any other styles as needed */
+        }
+    </style>
+</head>
+<body>
+    <h1>My Favorite Sites</h1>
+    <p></p>
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>Category</th>
+            <th>Description</th>
+            <th>State</th>
+        </tr>
+        {% for site in favorite_sites %}
+        <tr>
+            <td><a href="{% url 'unesco:site_detail' site.id %}">{{ site.name }}</a></td>
+            <td>{{ site.category.name }}</td>
+            <td>{{ site.description }}</td>
+            <td>{{ site.state.name }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
+{% endblock %}

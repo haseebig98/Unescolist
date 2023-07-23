@@ -1,0 +1,188 @@
+{% extends "base_menu.html" %}
+{% load humanize %}
+{% block content %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ site.name }} - Site Detail</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+
+        h1 {
+            margin-top: 0;
+        }
+
+        p {
+            margin: 5px 0;
+        }
+
+
+
+        img {
+            width: 400px;
+            height: auto;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        /* Header styles */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #f5f5f5;
+            padding: 10px;
+        }
+
+        /* Previous button styles */
+        .button.previous {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #980031;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+
+        /* Next button styles */
+        .button.next {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #980031;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+
+        /* Two-column layout using Flexbox */
+        .content {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .content .text {
+            flex: 1;
+            padding: 10px;
+        }
+
+        .content .image {
+            flex: 1;
+            display: flex;
+            justify-content: flex-end;
+            align-items: flex-start;
+            max-width: 50%; /* Adjust this value to control image width */
+            /* Add margin and padding as needed */
+            margin: 10px;
+            padding: 10px;
+        }
+
+        /* Image style */
+        .image img {
+            width: 100%; /* Set the image width to 100% of its container */
+            height: auto; /* Maintain the original aspect ratio */
+        }
+
+
+        /* Style the header text */
+        .header h1 {
+            font-size: 24px;
+            color: #333;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header with Next and Previous buttons -->
+    <div class="header">
+        <a class="button previous" href="{% url 'unesco:site_detail' site.id|add:"-1" %}">Previous</a>
+        <h1>{{ site.name }}</h1>
+        <a class="button next" href="{% url 'unesco:site_detail' site.id|add:"1" %}">Next</a>
+    </div>
+
+    <div class="content">
+        <div class="text">
+            <p><strong>Category:</strong> {{ site.category.name }}</p>
+    <p><strong>Description:</strong> {{ site.description }}</p>
+    <p><strong>State:</strong> {{ site.state.name }}</p>
+    <p><strong>Year:</strong> {{ site.year }}</p>
+    <p><strong>Latitude:</strong> {{ site.latitude }}</p>
+    <p><strong>Longitude:</strong> {{ site.longitude }}</p>
+    <p><strong>Justification:</strong> {{ site.justification }}</p>
+    <p><strong>Area (hectares):</strong> {{ site.area_hectares }}</p>
+    <p><strong>Region:</strong> {{ site.region.name }}</p>
+        </div>
+        <div class="image">
+            {% if site_image_url %}
+            <img src="{{ site_image_url }}" alt="{{ site.name }} Image">
+            {% endif %}
+        </div>
+    </div>
+    <div>
+
+        <!-- Show the single star icon, it will be filled or empty based on the user's action -->
+        <a href="#" onclick="favPost('{% url 'unesco:site_favorite' site.id %}', {{ site.id }} );return false;"
+           {% if site.id in favorites %} style="display: none;" {% endif %}
+           id="favorite_star_{{site.id}}">
+           <span class="fa-stack" style="vertical-align: middle;">
+               <i class="fa fa-star fa-stack-1x" style="display: none; color: orange;"></i>
+               <i class="fa fa-star-o fa-stack-1x"></i>
+            </span>
+        </a>
+        <!-- the second href -->
+        <a href="#" onclick="favPost('{% url 'unesco:site_unfavorite' site.id %}', {{ site.id }} );return false;"
+           {% if site.id not in favorites %} style="display: none;" {% endif %}
+           id="unfavorite_star_{{site.id}}">
+           <span class="fa-stack" style="vertical-align: middle;">
+            <i class="fa fa-star fa-stack-1x" style="color: orange;"></i>
+            <i class="fa fa-star-o fa-stack-1x"></i>
+           </span>
+        </a>
+
+    </div>
+    <div>
+        <p>
+        {% load crispy_forms_tags %}
+        <form method="post" action="{% url 'unesco:site_comment_create' site.id %}">
+            {% csrf_token %}
+            {{ comment_form|crispy }}
+        <input type="submit" value="Submit">
+        </form>
+        </p>
+        {% for comment in comments %}
+        <p> {{ comment.text }}
+        ({{ comment.updated_at|naturaltime }})
+        {% if user == comment.owner %}
+        <a href="{% url 'unesco:site_comment_delete' comment.id %}"><i class="fa fa-trash"></i></a>
+        {% endif %}
+        </p>
+        {% endfor %}
+    </div>
+    <div class="header">
+        <a class="button next" href="{% url 'unesco:sites_list' %}">Back to Sites List</a>
+    </div>
+
+</body>
+<script>
+    function favPost(url, site_id) {
+      console.log('Requesting JSON');
+      $.post(url, {},  function(rowz) {
+         console.log(url, 'finished');
+         $("#unfavorite_star_"+site_id).toggle();
+         $("#favorite_star_"+site_id).toggle();
+      }).fail(function(xhr) {
+         alert('Url failed with '+xhr.status+' '+url);
+      });
+    }
+</script>
+</html>
+
+{% endblock %}
