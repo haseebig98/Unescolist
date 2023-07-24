@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Image Search</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+
+        #searchBox {
+            margin-top: 50px;
+            display: flex;
+            justify-content: center;
+        }
+
+        #searchInput {
+            padding: 10px;
+            font-size: 16px;
+        }
+
+        #searchButton {
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+
+        #imageContainer {
+            margin-top: 50px;
+        }
+
+        /* Style for each image in the container */
+        .resultImage {
+            max-width: 100%;
+            max-height: 200px;
+            margin: 5px;
+        }
+
+         /* Style for enlarged image */
+        .enlargedImage {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .enlargedImage img {
+            max-width: 80%;
+            max-height: 80%;
+            cursor: pointer;
+        }
+
+        /* Class to show enlarged image */
+        .showEnlarged {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+
+    </style>
+</head>
+<body>
+    <h1>Image Search</h1>
+    <form method="post" action="{% url 'unesco:get_images' %}">
+        {% csrf_token %}
+        <div id="searchBox">
+            <input type="text" name="search_name" id="searchInput" placeholder="Enter your search query">
+            <button type="submit" id="searchButton">Search</button>
+        </div>
+    </form>
+
+    <div id="imageContainer">
+        {% if image_urls %}
+            {% for url in image_urls %}
+                <img class="resultImage" src="{{ url }}" alt="Image not found">
+            {% endfor %}
+        {% else %}
+            <p>No images found for the given search query.</p>
+        {% endif %}
+    </div>
+    <!-- Enlarged image container -->
+    <div class="enlargedImage" onclick="hideEnlarged()">
+        <img id="enlargedImg" src="" alt="Enlarged Image">
+    </div>
+
+    <script>
+        function showEnlarged(url) {
+            const enlargedImg = document.getElementById("enlargedImg");
+            enlargedImg.src = url;
+            const enlargedContainer = document.querySelector(".enlargedImage");
+            enlargedContainer.classList.add("showEnlarged");
+        }
+
+        function hideEnlarged() {
+            const enlargedContainer = document.querySelector(".enlargedImage");
+            enlargedContainer.classList.remove("showEnlarged");
+        }
+
+        // Function to toggle enlarged image
+        function toggleEnlarged(url) {
+            const enlargedImg = document.getElementById("enlargedImg");
+            const enlargedContainer = document.querySelector(".enlargedImage");
+
+            if (enlargedContainer.classList.contains("showEnlarged")) {
+                hideEnlarged();
+            } else {
+                enlargedImg.src = url;
+                enlargedContainer.classList.add("showEnlarged");
+            }
+        }
+
+        // Add click event listener to each image
+        const resultImages = document.querySelectorAll(".resultImage");
+        resultImages.forEach(image => {
+            image.addEventListener("click", function() {
+                toggleEnlarged(this.src);
+            });
+        });
+
+    </script>
+
+</body>
+</html>

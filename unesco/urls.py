@@ -12,4 +12,5 @@ urlpatterns = [
     path('comment/<int:pk>/delete', views.CommentDeleteView.as_view(success_url=reverse_lazy('unesco:sites_list')), name='site_comment_delete'),
     path('site/<int:site_id>/favorite', views.AddFavoriteView.as_view(), name='site_favorite'),
     path('site/<int:site_id>/unfavorite', views.DeleteFavoriteView.as_view(), name='site_unfavorite'),
+    path('img/', views.get_images, name='get_images'),
 ]

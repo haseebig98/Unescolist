@@ -10,6 +10,50 @@ from django.urls import reverse
 from unesco.owner import OwnerDeleteView
 from django.db import IntegrityError
 from .forms import CommentForm
+from django.contrib.auth.decorators import login_required
+from . import googleapi
+
+
+
+import requests
+
+@login_required
+def get_images(request):
+    if request.method == 'POST':
+        search_name = request.POST.get('search_name')
+        api_key = googleapi.api_key
+        search_engine_id = googleapi.search_engine_id
+        url = f'https://www.googleapis.com/customsearch/v1?q={search_name}&cx={search_engine_id}&searchType=image&key={api_key}'
+        print("API Request URL:")
+        print(url)
+
+        try:
+            response = requests.get(url)
+            response_json = response.json()
+            # print("Got the response Hurraaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaassssssssssssssssssssssssssah")
+            # print(search_name)
+            # Access the username if the user is authenticated
+            # if request.user.is_authenticated:
+            #     print("Authenticated User:", request.user.username)
+
+            image_urls = []
+            counter = 0
+            if 'items' in response_json:
+                # Extract image URLs from all items in the response
+                for item in response_json['items']:
+                    if 'link' in item:
+                        image_urls.append(item['link'])
+                    counter += 1
+                print(f"Number of requests: {counter}")
+                return render(request, 'index.html', {'image_urls': image_urls})
+
+        except requests.RequestException as e:
+            print(f"Error fetching image: {e}")
+
+    # If no image found or error, render the template without image_url
+    return render(request, 'index.html')
+
+
 
 def sites_list(request):
     # Fetch the required fields for the first 20 sites from the database
@@ -28,11 +72,11 @@ def sites_list(request):
     return render(request, 'sites_list.html', {'sites' : objects, 'search': strval})
 
 
-import requests
+# import requests
 
 def get_image_url(site_name):
-    api_key = 'AIzaSyDArecd2eVuLyjf9YM8JQyyyKsttYoBjiA'
-    search_engine_id = '40a44d89d79eb4710'
+    api_key = googleapi.api_key
+    search_engine_id = googleapi.search_engine_id
     url = f'https://www.googleapis.com/customsearch/v1?q={site_name}&cx={search_engine_id}&searchType=image&key={api_key}'
     print("API Request URL:")
     print(url)
